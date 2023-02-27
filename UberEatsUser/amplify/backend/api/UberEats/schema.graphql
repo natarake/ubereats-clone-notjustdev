@@ -1,0 +1,74 @@
+enum OrderStatus {
+  NEW
+  PREPARING
+  READY_FOR_PICKUP
+  PICKED_UP
+  COMPLETED
+}
+
+type OrderList @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  quantity: Int!
+  Dish: Dish @hasOne
+  orderID: ID! @index(name: "byOrder")
+}
+
+type Order @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  Restaurant: Restaurant @hasOne
+  total: Float!
+  status: OrderStatus!
+  userID: ID! @index(name: "byUser")
+  OrderLists: [OrderList] @hasMany(indexName: "byOrder", fields: ["id"])
+}
+
+type CartList @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  quantity: Int!
+  Dish: Dish @hasOne
+  cartID: ID! @index(name: "byCart")
+}
+
+type Cart @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  CartLists: [CartList] @hasMany(indexName: "byCart", fields: ["id"])
+  userID: ID! @index(name: "byUser")
+  restaurantID: ID! @index(name: "byRestaurant")
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  sub: String!
+  name: String!
+  address: String!
+  lat: Float!
+  Orders: [Order] @hasMany(indexName: "byUser", fields: ["id"])
+  Carts: [Cart] @hasMany(indexName: "byUser", fields: ["id"])
+  long: Float!
+}
+
+type Dish @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String
+  image: String!
+  shortDescription: String
+  description: String
+  price: Float!
+  restaurantID: ID! @index(name: "byRestaurant")
+}
+
+type Restaurant @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  image: String!
+  deliveryFee: Float!
+  minDeliveryTime: Int!
+  maxDeliveryTime: Int!
+  rating: Float!
+  address: String!
+  lat: Float
+  long: Float
+  Dishes: [Dish] @hasMany(indexName: "byRestaurant", fields: ["id"])
+  Carts: [Cart] @hasMany(indexName: "byRestaurant", fields: ["id"])
+}
+ 
